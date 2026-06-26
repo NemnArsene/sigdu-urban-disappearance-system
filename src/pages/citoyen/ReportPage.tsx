@@ -10,6 +10,8 @@ import { ARRONDISSEMENTS, QUARTIERS_PAR_ARRONDISSEMENT } from '../../lib/constan
 
 const STEPS = ['Photo', 'Localisation', 'Détails', 'Confirmation'];
 
+const DEFAULT_LOCATION = { lat: 4.0511, lng: 9.7679 }; // Douala, Cameroun
+
 const PERSON_AGES: { value: PersonAge; label: string; color: string }[] = [
   { value: 'ENFANT_MINEUR', label: '👶 Enfant mineur', color: 'border-red-500 bg-red-50 text-red-700' },
   { value: 'ADULTE', label: '👤 Adulte', color: 'border-blue-500 bg-blue-50 text-blue-700' },
@@ -58,22 +60,29 @@ export const CitizenReportPage = () => {
   };
 
   const handleGeolocate = () => {
-    if (!navigator.geolocation) { toast.error('Géolocalisation non supportée'); return; }
+    if (!navigator.geolocation) {
+      setLocation(DEFAULT_LOCATION);
+      toast.info('Géolocalisation non supportée - position par défaut utilisée');
+      return;
+    }
     navigator.geolocation.getCurrentPosition(
       pos => {
         setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         toast.success('Position GPS détectée !');
       },
       () => {
-        toast.error('Impossible de récupérer la position GPS');
+        setLocation(DEFAULT_LOCATION);
+        toast.info('Position par défaut utilisée (Douala)');
       }
     );
   };
 
   const handleSubmit = async () => {
-    if (!user || !location || !form.type) return;
+    if (!user || !form.type) return;
     setIsSubmitting(true);
     await new Promise(r => setTimeout(r, 1000));
+
+    const finalLocation = location || DEFAULT_LOCATION;
 
     await db.incidents.add({
       id: `inc_${Date.now()}`,
@@ -83,8 +92,8 @@ export const CitizenReportPage = () => {
       title: form.title,
       description: form.description,
       location: {
-        lat: location.lat,
-        lng: location.lng,
+        lat: finalLocation.lat,
+        lng: finalLocation.lng,
         address: form.address,
         arrondissement: form.arrondissement,
         quartier: form.quartier,
@@ -102,7 +111,7 @@ export const CitizenReportPage = () => {
 
   const canProceed = () => {
     if (step === 0) return true; // Photos optionnelles
-    if (step === 1) return location !== null;
+    if (step === 1) return true; // Localisation optionnelle (utilise défaut si pas de GPS)
     if (step === 2) return form.title && form.type && form.personAge && form.description && form.arrondissement && form.quartier;
     return true;
   };
@@ -194,7 +203,7 @@ export const CitizenReportPage = () => {
             <div className="text-center py-2">
               <div className="text-4xl mb-2">📍</div>
               <h3 className="font-bold text-gray-900 dark:text-white">Localisez l'incident</h3>
-              <p className="text-sm text-gray-500 mt-1">Utilisez votre position GPS réelle</p>
+              <p className="text-sm text-gray-500 mt-1">Utilisez votre position GPS ou la position par défaut</p>
             </div>
 
             <button
@@ -209,9 +218,20 @@ export const CitizenReportPage = () => {
               <div className="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl">
                 <MapPin className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                 <div className="text-xs text-emerald-700 dark:text-emerald-300">
-                  <p className="font-semibold">Position détectée ✓</p>
+                  <p className="font-semibold">
+                    {location.lat === DEFAULT_LOCATION.lat && location.lng === DEFAULT_LOCATION.lng
+                      ? 'Position par défaut (Douala)'
+                      : 'Position détectée ✓'}
+                  </p>
                   <p>{location.lat.toFixed(6)}, {location.lng.toFixed(6)}</p>
                 </div>
+              </div>
+            )}
+
+            {!location && (
+              <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-3 text-xs text-amber-700 dark:text-amber-300">
+                <AlertTriangle className="w-3.5 h-3.5 inline mr-1" />
+                Aucune position GPS. Cliquez sur le bouton ci-dessus ou la position par défaut sera utilisée.
               </div>
             )}
 
@@ -394,7 +414,11 @@ export const CitizenReportPage = () => {
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Localisation</span>
                 <span className="font-medium text-gray-900 dark:text-white">
-                  {location ? `${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}` : 'Non défini'}
+                  {location
+                    ? (location.lat === DEFAULT_LOCATION.lat && location.lng === DEFAULT_LOCATION.lng
+                        ? 'Position par défaut (Douala)'
+                        : `${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`)
+                    : 'Position par défaut (Douala)'}
                 </span>
               </div>
               <div className="flex justify-between text-sm">

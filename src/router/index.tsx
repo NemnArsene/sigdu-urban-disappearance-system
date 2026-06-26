@@ -40,6 +40,7 @@ import { SupervisorReportsPage } from '../pages/superviseur/ReportsPage';
 import { SupervisorRumorsPage } from '../pages/superviseur/RumorsPage';
 import { SupervisorObservationsPage } from '../pages/superviseur/ObservationsPage';
 import { SupervisorIncidentDetailsPage } from '../pages/superviseur/IncidentDetailsPage';
+import { SupervisorAffectationsPage } from '../pages/superviseur/AffectationsPage';
 import { AdminDashboard } from '../pages/admin/Dashboard';
 import { AdminUsersPage } from '../pages/admin/UsersPage';
 import { AdminIncidentsPage } from '../pages/admin/IncidentsPage';
@@ -123,6 +124,7 @@ export const router = createBrowserRouter([
       { path: 'sos', element: <SOSPage /> },
       { path: 'validation', element: <SupervisorValidationPage /> },
       { path: 'incidents', element: <SupervisorIncidentsPage /> },
+      { path: 'affectations', element: <SupervisorAffectationsPage /> },
       { path: 'map', element: <SupervisorMapPage /> },
       { path: 'statistiques', element: <SupervisorStatisticsPage /> },
       { path: 'rapports', element: <SupervisorReportsPage /> },

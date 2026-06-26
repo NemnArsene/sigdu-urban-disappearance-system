@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, CheckSquare, List, Map, BarChart2, FileText, LogOut, Moon, Sun, Bell, Shield, ChevronLeft, ChevronRight, MessageSquareWarning, Eye, AlertTriangle } from 'lucide-react';
+import { LayoutDashboard, CheckSquare, List, Map, BarChart2, FileText, LogOut, Moon, Sun, Bell, Shield, ChevronLeft, ChevronRight, MessageSquareWarning, Eye, AlertTriangle, UserPlus } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 import { useUiStore } from '../../stores/uiStore';
 import { cn } from '../../lib/utils';
@@ -26,6 +26,7 @@ export const SupervisorLayout = () => {
       items: [
         { to: '/superviseur/incidents', icon: List, label: 'Signalements' },
         { to: '/superviseur/validation', icon: CheckSquare, label: 'Validation' },
+        { to: '/superviseur/affectations', icon: UserPlus, label: 'Affectations' },
         { to: '/superviseur/observations', icon: Eye, label: 'Observations' },
       ]
     },

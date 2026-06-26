@@ -2,16 +2,19 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../lib/database';
-import { ChevronLeft, Clock, User, MapPin, FileText, AlertTriangle, Eye, ShieldAlert, Badge as BadgeIcon, CheckSquare, Users } from 'lucide-react';
+import { ChevronLeft, Clock, User, MapPin, FileText, AlertTriangle, Eye, ShieldAlert, Badge as BadgeIcon, CheckSquare, Users, UserPlus } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '../../lib/utils';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
+import { toast } from 'sonner';
 
 export const SupervisorIncidentDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [selectedAgent, setSelectedAgent] = useState<string>('');
+  const [assigningId, setAssigningId] = useState<string | null>(null);
 
   const incident = useLiveQuery(() => id ? db.incidents.get(id) : undefined, [id]);
   const timelineEvents = useLiveQuery(async () => {
@@ -19,6 +22,40 @@ export const SupervisorIncidentDetailsPage = () => {
     const events = await db.timelineEvents.where('incidentId').equals(id).toArray();
     return events.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [id]);
+  const agents = useLiveQuery(() => db.users.where('role').equals('AGENT').toArray(), []);
+  const services = useLiveQuery(() => db.services.toArray(), []);
+
+  const handleAssign = async () => {
+    if (!selectedAgent || !id) {
+      toast.error('Sélectionnez un agent');
+      return;
+    }
+    setAssigningId(id);
+    try {
+      const agent = agents?.find(a => a.id === selectedAgent);
+      await db.incidents.update(id, {
+        assignedTo: selectedAgent,
+        assignedServiceId: agent?.serviceId,
+        status: 'EN_VERIFICATION',
+        updatedAt: new Date().toISOString()
+      });
+      await db.timelineEvents.add({
+        id: `te_assign_${Date.now()}`,
+        incidentId: id,
+        actionType: 'ASSIGNMENT',
+        description: `Dossier assigné à l'agent: ${agent?.name || selectedAgent} par le superviseur.`,
+        visibility: 'INTERNAL',
+        createdBy: 'SUPERVISEUR',
+        createdAt: new Date().toISOString()
+      });
+      toast.success('Dossier assigné avec succès');
+      setSelectedAgent('');
+    } catch {
+      toast.error("Erreur lors de l'assignation");
+    } finally {
+      setAssigningId(null);
+    }
+  };
 
   if (!incident) {
     return (
@@ -118,6 +155,46 @@ export const SupervisorIncidentDetailsPage = () => {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Assignment Section */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+            <h3 className="font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <UserPlus className="w-4 h-4 text-indigo-500" />
+              Assigner à un Agent
+            </h3>
+            {incident.assignedTo ? (
+              <div className="text-center py-3">
+                <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium">
+                  ✓ Déjà assigné à un agent
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <select
+                  value={selectedAgent}
+                  onChange={(e) => setSelectedAgent(e.target.value)}
+                  className="w-full px-3 py-2.5 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  <option value="">Choisir un agent</option>
+                  {agents?.map(a => {
+                    const svc = services?.find(s => s.id === a.serviceId);
+                    return (
+                      <option key={a.id} value={a.id}>
+                        {a.name} {svc ? `(${svc.name})` : ''}
+                      </option>
+                    );
+                  })}
+                </select>
+                <Button
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                  onClick={handleAssign}
+                  disabled={!selectedAgent || assigningId === id}
+                >
+                  {assigningId === id ? '...' : 'Assigner le dossier'}
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 
