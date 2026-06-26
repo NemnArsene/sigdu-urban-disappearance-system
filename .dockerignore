@@ -1,0 +1,28 @@
+# Dependencies (reinstalled during build)
+node_modules/
+
+# Build output (generated during build)
+dist/
+
+# Git
+.git/
+.gitignore
+
+# Docs & scripts non nécessaires au build
+docs/
+scripts/
+*.md
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Local env
+.env.local
+.env.*.local

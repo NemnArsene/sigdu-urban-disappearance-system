@@ -3,6 +3,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { useUiStore } from '../../stores/uiStore';
 import { db } from '../../lib/database';
 import { toast } from 'sonner';
+import { NotificationBell } from '../ui/NotificationBell';
 import {
   Home, AlertCircle, MapPin, User, Menu, X, ShieldAlert, ChevronRight,
   Sun, Moon, LogOut, Plus, Settings, HelpCircle, Bell, BookOpen, Phone, Newspaper,
@@ -114,16 +115,19 @@ export const CitizenLayout = () => {
             </div>
           </div>
 
-          <button
-            onClick={() => navigate('/citoyen/profil')}
-            className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 transition-all hover:bg-slate-200 dark:hover:bg-slate-700 overflow-hidden ring-2 ring-white dark:ring-slate-900 shadow-sm"
-          >
-            {user?.photo ? (
-              <img src={user.photo} alt="Profil" className="w-full h-full object-cover" />
-            ) : (
-              <span className="font-bold text-sm">{user?.name?.charAt(0)?.toUpperCase() || 'U'}</span>
-            )}
-          </button>
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <button
+              onClick={() => navigate('/citoyen/profil')}
+              className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 transition-all hover:bg-slate-200 dark:hover:bg-slate-700 overflow-hidden ring-2 ring-white dark:ring-slate-900 shadow-sm"
+            >
+              {user?.photo ? (
+                <img src={user.photo} alt="Profil" className="w-full h-full object-cover" />
+              ) : (
+                <span className="font-bold text-sm">{user?.name?.charAt(0)?.toUpperCase() || 'U'}</span>
+              )}
+            </button>
+          </div>
         </div>
       </header>
 

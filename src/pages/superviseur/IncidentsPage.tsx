@@ -7,15 +7,25 @@ import { Button } from '../../components/ui/Button';
 import { toast } from 'sonner';
 import { FileText, MapPin, Search, ExternalLink, Megaphone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Pagination } from '../../components/ui/Pagination';
+
+const PAGE_SIZE = 8;
 
 export const SupervisorIncidentsPage = () => {
   const [filter, setFilter] = useState('ALL');
+  const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
 
   const incidents = useLiveQuery(() => {
     if (filter === 'ALL') return db.incidents.orderBy('createdAt').reverse().toArray();
     return db.incidents.where('status').equals(filter).reverse().toArray();
   }, [filter]);
+
+  const totalItems = incidents?.length ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+  const pagedIncidents = incidents?.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  const handleFilterChange = (f: string) => { setFilter(f); setCurrentPage(1); };
 
   const handlePublishAvis = async (incidentId: string, title: string) => {
     try {
@@ -57,7 +67,7 @@ export const SupervisorIncidentsPage = () => {
           {['ALL', 'EN_VERIFICATION', 'RECHERCHE', 'ENLEVEMENT_CONFIRME', 'LOCALISE', 'RETROUVE'].map((f) => (
             <button
               key={f}
-              onClick={() => setFilter(f)}
+              onClick={() => handleFilterChange(f)}
               className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap ${
                 filter === f ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'
               }`}
@@ -69,13 +79,13 @@ export const SupervisorIncidentsPage = () => {
       </div>
 
       <div className="grid gap-4">
-        {!incidents?.length ? (
+        {!pagedIncidents?.length ? (
           <div className="py-12 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
             <Search className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
             <p className="text-slate-500 font-medium">Aucun dossier trouvé pour ce filtre</p>
           </div>
         ) : (
-          incidents.map(incident => (
+          pagedIncidents!.map(incident => (
             <div key={incident.id} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
               <div className="flex flex-col md:flex-row gap-4 justify-between">
                 <div className="flex-1 min-w-0">
@@ -121,6 +131,13 @@ export const SupervisorIncidentsPage = () => {
           ))
         )}
       </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        totalItems={totalItems}
+        pageSize={PAGE_SIZE}
+      />
     </div>
   );
 };

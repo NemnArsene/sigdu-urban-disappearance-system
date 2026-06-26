@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie';
-import { type User, type Incident, type Alert, type Organization, type Service, type Observation, type TimelineEvent, type Watcher, type NewsPost, type Rumor, type SOSAlert } from '../types';
+import { type User, type Incident, type Alert, type Organization, type Service, type Observation, type TimelineEvent, type Watcher, type NewsPost, type Rumor, type SOSAlert, type Notification } from '../types';
 
 export class SigduDatabase extends Dexie {
   users!: Table<User, string>; 
@@ -13,11 +13,12 @@ export class SigduDatabase extends Dexie {
   newsFeed!: Table<NewsPost, string>;
   rumors!: Table<Rumor, string>;
   sosAlerts!: Table<SOSAlert, string>;
+  notifications!: Table<Notification, string>;
 
   constructor() {
     super('SigduDatabase');
     // Declare tables, primary keys and indexes
-    this.version(4).stores({
+    this.version(8).stores({
       users: 'id, email, role, organizationId, serviceId',
       incidents: 'id, type, status, reportedBy, assignedServiceId, assignedTo, createdAt',
       alerts: 'id, level, createdAt',
@@ -28,7 +29,8 @@ export class SigduDatabase extends Dexie {
       watchers: 'userId, active',
       newsFeed: 'id, type, createdAt',
       rumors: 'id, submittedBy, status, createdAt',
-      sosAlerts: 'id, userId, status, assignedServiceId, createdAt'
+      sosAlerts: 'id, userId, status, assignedServiceId, createdAt',
+      notifications: 'id, userId, read, createdAt'
     });
   }
 }

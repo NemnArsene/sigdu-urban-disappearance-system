@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../lib/database';
-import { ChevronLeft, Clock, User, Shield, MapPin, Search, FileText, AlertTriangle, Eye, ShieldAlert, Badge as BadgeIcon } from 'lucide-react';
+import { ChevronLeft, Clock, User, MapPin, FileText, AlertTriangle, Eye, ShieldAlert, Badge as BadgeIcon, CheckSquare, Users } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '../../lib/utils';
@@ -14,7 +14,11 @@ export const SupervisorIncidentDetailsPage = () => {
   const navigate = useNavigate();
 
   const incident = useLiveQuery(() => id ? db.incidents.get(id) : undefined, [id]);
-  const timelineEvents = useLiveQuery(() => id ? db.timelineEvents.where('incidentId').equals(id).reverse().sortBy('createdAt') : [], [id]);
+  const timelineEvents = useLiveQuery(async () => {
+    if (!id) return [];
+    const events = await db.timelineEvents.where('incidentId').equals(id).toArray();
+    return events.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [id]);
 
   if (!incident) {
     return (
@@ -144,7 +148,9 @@ export const SupervisorIncidentDetailsPage = () => {
                     <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white dark:border-slate-900 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm z-10 bg-white dark:bg-slate-800">
                       {event.actionType === 'STATUS_CHANGE' && <ShieldAlert className="w-4 h-4 text-indigo-500" />}
                       {event.actionType === 'OBSERVATION' && <Eye className="w-4 h-4 text-orange-500" />}
+                      {event.actionType === 'AFFECTATION' && <Users className="w-4 h-4 text-blue-500" />}
                       {event.actionType === 'ASSIGNMENT' && <User className="w-4 h-4 text-blue-500" />}
+                      {event.actionType === 'VALIDATION' && <CheckSquare className="w-4 h-4 text-emerald-500" />}
                       {event.actionType === 'CREATION' && <AlertTriangle className="w-4 h-4 text-red-500" />}
                     </div>
                     

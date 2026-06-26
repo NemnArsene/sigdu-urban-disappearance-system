@@ -7,16 +7,26 @@ import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '../../lib/utils';
 import { type Observation } from '../../types';
+import { Pagination } from '../../components/ui/Pagination';
+
+const PAGE_SIZE = 6;
 
 export const SupervisorObservationsPage = () => {
   const observations = useLiveQuery(() => db.observations.orderBy('createdAt').reverse().toArray(), []);
   
   const [filter, setFilter] = useState<'NOUVEAU' | 'TRAITE'>('NOUVEAU');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filteredObservations = observations?.filter(obs => {
     if (filter === 'NOUVEAU') return obs.status === 'NOUVEAU';
     return obs.status !== 'NOUVEAU';
   });
+
+  const totalItems = filteredObservations?.length ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+  const pagedObservations = filteredObservations?.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  const handleFilterChange = (f: 'NOUVEAU' | 'TRAITE') => { setFilter(f); setCurrentPage(1); };
 
   return (
     <div className="space-y-6">
@@ -28,7 +38,7 @@ export const SupervisorObservationsPage = () => {
         
         <div className="flex bg-white dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
           <button
-            onClick={() => setFilter('NOUVEAU')}
+            onClick={() => handleFilterChange('NOUVEAU')}
             className={cn(
               "px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2",
               filter === 'NOUVEAU' ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400" : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -37,7 +47,7 @@ export const SupervisorObservationsPage = () => {
             <Clock className="w-4 h-4" /> À traiter
           </button>
           <button
-            onClick={() => setFilter('TRAITE')}
+            onClick={() => handleFilterChange('TRAITE')}
             className={cn(
               "px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2",
               filter === 'TRAITE' ? "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400" : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -49,15 +59,22 @@ export const SupervisorObservationsPage = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {!filteredObservations || filteredObservations.length === 0 ? (
+        {!pagedObservations || pagedObservations.length === 0 ? (
           <div className="col-span-full py-12 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
             <Eye className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
             <p className="text-slate-500 font-medium">Aucune observation dans cette catégorie</p>
           </div>
         ) : (
-          filteredObservations.map(obs => <ObservationCard key={obs.id} observation={obs} />)
+          pagedObservations!.map(obs => <ObservationCard key={obs.id} observation={obs} />)
         )}
       </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        totalItems={totalItems}
+        pageSize={PAGE_SIZE}
+      />
     </div>
   );
 };

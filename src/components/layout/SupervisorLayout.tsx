@@ -4,6 +4,7 @@ import { LayoutDashboard, CheckSquare, List, Map, BarChart2, FileText, LogOut, M
 import { useAuthStore } from '../../stores/authStore';
 import { useUiStore } from '../../stores/uiStore';
 import { cn } from '../../lib/utils';
+import { NotificationBell } from '../ui/NotificationBell';
 
 export const SupervisorLayout = () => {
   const { user, logout } = useAuthStore();
@@ -154,11 +155,8 @@ export const SupervisorLayout = () => {
             >
               {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
-            <button className="relative p-2 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-400 transition-all">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-gray-950" />
-            </button>
-            <button onClick={logout} className="p-2 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10">
+            <NotificationBell />
+            <button onClick={logout} className="md:hidden p-2 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10">
               <LogOut className="w-5 h-5" />
             </button>
           </div>

@@ -146,3 +146,13 @@ export interface SOSAlert {
   resolvedAt?: string;
   createdAt: string;
 }
+
+export interface Notification {
+  id: string;
+  userId: string;
+  title: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+  link?: string;
+}

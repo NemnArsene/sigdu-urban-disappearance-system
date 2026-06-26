@@ -12,7 +12,7 @@ export const SupervisorStatisticsPage = () => {
   const data = [
     { name: 'Disparitions', value: incidents.filter(i => i.type === 'DISPARITION').length },
     { name: 'Enlèvements', value: incidents.filter(i => i.type === 'ENLEVEMENT').length },
-    { name: 'Retrouvés', value: incidents.filter(i => i.type === 'RETROUVE').length },
+    { name: 'Retrouvés', value: incidents.filter(i => i.status === 'RETROUVE').length },
   ];
 
   const COLORS = ['#ef4444', '#f59e0b', '#10b981'];

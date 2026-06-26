@@ -47,6 +47,12 @@ import { AdminMapPage } from '../pages/admin/MapPage';
 import { AdminReportsPage } from '../pages/admin/ReportsPage';
 import { AdminAuditPage } from '../pages/admin/AuditPage';
 import { AdminConfigurationPage } from '../pages/admin/ConfigurationPage';
+import { AdminValidationPage } from '../pages/admin/ValidationPage';
+import { AdminObservationsPage } from '../pages/admin/ObservationsPage';
+import { AdminInterventionsPage } from '../pages/admin/InterventionsPage';
+import { AdminAffectationsPage } from '../pages/admin/AffectationsPage';
+import { AdminEnquetesPage } from '../pages/admin/EnquetesPage';
+import { AdminAgentsPage } from '../pages/admin/AgentsPage';
 import { SOSPage } from '../pages/superviseur/SOSPage';
 
 function RootRedirect() {
@@ -134,18 +140,19 @@ export const router = createBrowserRouter([
       { path: 'utilisateurs', element: <AdminUsersPage /> },
       { path: 'incidents', element: <AdminIncidentsPage /> },
       { path: 'map', element: <AdminMapPage /> },
-      { path: 'validation', element: <SupervisorValidationPage /> },
-      { path: 'observations', element: <SupervisorObservationsPage /> },
-      { path: 'interventions', element: <Placeholder title="Interventions" /> },
-      { path: 'affectations', element: <AgentAssignmentsPage /> },
-      { path: 'enquetes', element: <AgentInvestigationsPage /> },
+      { path: 'validation', element: <AdminValidationPage /> },
+      { path: 'observations', element: <AdminObservationsPage /> },
+      { path: 'interventions', element: <AdminInterventionsPage /> },
+      { path: 'affectations', element: <AdminAffectationsPage /> },
+      { path: 'enquetes', element: <AdminEnquetesPage /> },
+      { path: 'agents', element: <AdminAgentsPage /> },
       { path: 'rumeurs', element: <SupervisorRumorsPage /> },
       { path: 'statistiques', element: <SupervisorStatisticsPage /> },
       { path: 'rapports', element: <AdminReportsPage /> },
-      { path: 'agents', element: <Placeholder title="Agents" /> },
       { path: 'notifications', element: <Placeholder title="Notifications" /> },
       { path: 'audit', element: <AdminAuditPage /> },
       { path: 'configuration', element: <AdminConfigurationPage /> },
+      { path: 'incident/:id', element: <SupervisorIncidentDetailsPage /> },
     ]
   }
 ]);
