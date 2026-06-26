@@ -2,18 +2,32 @@ import { db } from './database';
 import { type User, type Incident, type Alert, type Organization, type Service, type IncidentType, type IncidentStatus, type NewsPost, type Rumor } from '../types';
 
 const DOUALA_CENTER = { lat: 4.0511, lng: 9.7679 };
+const DB_SEED_VERSION = 'v4'; // Increment this whenever you want to force a re-seed
 
 const generateRandomOffset = () => (Math.random() - 0.5) * 0.05; // roughly 5km radius
 
 export const seedDatabase = async () => {
-  // Check if DB is already seeded
-  const userCount = await db.users.count();
-  if (userCount > 0) {
-    console.log("Database already seeded. Skipping.");
+  // Check seed version – if stale, clear and re-seed
+  const seedVersion = localStorage.getItem('sigdu_seed_version');
+  if (seedVersion === DB_SEED_VERSION) {
+    console.log("Database already seeded at current version. Skipping.");
     return;
   }
 
-  console.log("Seeding database with demo data...");
+  console.log("Seeding database with demo data (version:", DB_SEED_VERSION, ")...");
+
+  // Clear all tables before re-seeding
+  await db.users.clear();
+  await db.incidents.clear();
+  await db.alerts.clear();
+  await db.organizations.clear();
+  await db.services.clear();
+  await db.observations.clear();
+  await db.timelineEvents.clear();
+  await db.watchers.clear();
+  await db.newsFeed.clear();
+  await db.rumors.clear();
+  await db.sosAlerts.clear();
 
   // 1. Create Organizations
   const organizations: Organization[] = [
@@ -64,18 +78,14 @@ export const seedDatabase = async () => {
 
   // 4. Create Incidents
   const incidents: Incident[] = [];
-  const types: IncidentType[] = ['ENFANT_MINEUR', 'ADULTE', 'PERSONNE_AGEE', 'FUGUE', 'ENLEVEMENT', 'TROUBLE_COGNITIF', 'ACCIDENT_SUSPECT', 'RETROUVE', 'AUTRE'];
+  const types: IncidentType[] = ['DISPARITION', 'FUGUE', 'ENLEVEMENT', 'TROUBLE_COGNITIF', 'ACCIDENT_SUSPECT', 'AUTRE'];
   const statuses: IncidentStatus[] = ['NOUVEAU', 'EN_VERIFICATION', 'DISPARITION_CONFIRMEE', 'ENQUETE_EN_COURS', 'LOCALISE', 'RETROUVE', 'CLOTURE'];
   const arrondissements = ['Douala I', 'Douala II', 'Douala III', 'Douala IV', 'Douala V'];
+  const ages: Array<'ENFANT_MINEUR' | 'ADULTE' | 'PERSONNE_AGEE'> = ['ENFANT_MINEUR', 'ADULTE', 'PERSONNE_AGEE'];
   const serviceIds = ['srv_police_d1', 'srv_police_d2', 'srv_gendarmerie_d3'];
 
   for (let i = 0; i < 100; i++) {
-    let type: IncidentType = types[0];
-    if (i >= 20 && i < 40) type = types[1];
-    if (i >= 40 && i < 60) type = types[3]; // FUGUE
-    if (i >= 60 && i < 80) type = types[4]; // ENLEVEMENT
-    if (i >= 80) type = types[7]; // RETROUVE
-
+    const type = types[i % types.length];
     const status = statuses[Math.floor(Math.random() * statuses.length)];
     const arrondissement = arrondissements[i % 5];
     const assignedServiceId = status !== 'NOUVEAU' && status !== 'EN_VERIFICATION' ? serviceIds[i % 3] : undefined;
@@ -86,10 +96,12 @@ export const seedDatabase = async () => {
       status,
       title: `${type.replace('_', ' ')} signalé dans ${arrondissement}`,
       description: `Description détaillée pour l'incident ${i}. Signalement important nécessitant une vérification.`,
+      personAge: ['DISPARITION', 'FUGUE', 'ENLEVEMENT'].includes(type) ? ages[i % 3] : undefined,
       location: {
         lat: DOUALA_CENTER.lat + generateRandomOffset(),
         lng: DOUALA_CENTER.lng + generateRandomOffset(),
         arrondissement,
+        quartier: `Quartier ${i % 10}`
       },
       photos: [],
       reportedBy: 'u1',
@@ -130,10 +142,13 @@ export const seedDatabase = async () => {
   ];
   await db.rumors.bulkAdd(rumors);
 
-  console.log("Database seeded successfully.");
+  // Mark seed as done for this version
+  localStorage.setItem('sigdu_seed_version', DB_SEED_VERSION);
+  console.log("Database seeded successfully at version:", DB_SEED_VERSION);
 };
 
 export const resetDatabase = async () => {
+  localStorage.removeItem('sigdu_seed_version');
   await db.users.clear();
   await db.incidents.clear();
   await db.alerts.clear();

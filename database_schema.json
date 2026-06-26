@@ -1,0 +1,227 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SIGDU Database Schema",
+  "description": "Schéma complet de la base de données Dexie/IndexedDB pour reverse engineering",
+  "type": "object",
+  "properties": {
+    "users": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "email": { "type": "string", "format": "email" },
+          "name": { "type": "string" },
+          "firstName": { "type": "string" },
+          "phone": { "type": "string" },
+          "nationality": { "type": "string" },
+          "age": { "type": "integer" },
+          "photo": { "type": "string" },
+          "role": { "type": "string", "enum": ["CITOYEN", "AGENT", "SUPERVISEUR", "ADMIN"] },
+          "organizationId": { "type": "string" },
+          "serviceId": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "email", "name", "role", "createdAt"]
+      }
+    },
+    "organizations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "name", "type", "createdAt"]
+      }
+    },
+    "services": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "organizationId": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "arrondissement": { "type": "string" },
+          "location": {
+            "type": "object",
+            "properties": {
+              "lat": { "type": "number" },
+              "lng": { "type": "number" },
+              "address": { "type": "string" },
+              "arrondissement": { "type": "string" },
+              "quartier": { "type": "string" }
+            },
+            "required": ["lat", "lng"]
+          },
+          "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "organizationId", "name", "createdAt"]
+      }
+    },
+    "incidents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "type": { "type": "string", "enum": ["FUGUE", "DISPARITION", "ENLEVEMENT", "TROUBLE_COGNITIF", "ACCIDENT_SUSPECT", "AUTRE"] },
+          "personAge": { "type": "string", "enum": ["ENFANT_MINEUR", "ADULTE", "PERSONNE_AGEE"] },
+          "status": { "type": "string", "enum": ["NOUVEAU", "EN_VERIFICATION", "FUGUE_PRESUMEE", "DISPARITION_CONFIRMEE", "ENLEVEMENT_CONFIRME", "ALERTE_CRITIQUE", "RECHERCHE", "ENQUETE_EN_COURS", "LOCALISE", "RETROUVE", "CLOTURE", "FAUSSE_ALERTE", "CORRESPONDANCE_EN_ATTENTE"] },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "location": {
+            "type": "object",
+            "properties": {
+              "lat": { "type": "number" },
+              "lng": { "type": "number" },
+              "address": { "type": "string" },
+              "arrondissement": { "type": "string" },
+              "quartier": { "type": "string" }
+            },
+            "required": ["lat", "lng"]
+          },
+          "photos": { "type": "array", "items": { "type": "string" } },
+          "reportedBy": { "type": "string", "format": "uuid" },
+          "assignedServiceId": { "type": "string", "format": "uuid" },
+          "assignedTo": { "type": "string", "format": "uuid" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "type", "status", "title", "description", "location", "reportedBy", "createdAt", "updatedAt"]
+      }
+    },
+    "alerts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "title": { "type": "string" },
+          "message": { "type": "string" },
+          "level": { "type": "string", "enum": ["INFO", "WARNING", "CRITICAL"] },
+          "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "title", "message", "level", "createdAt"]
+      }
+    },
+    "observations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "type": { "type": "string", "enum": ["PERSONNE_CORRESPONDANTE", "ENFANT_SEUL", "PERSONNE_DESORIENTEE", "VEHICULE_SUSPECT", "COMPORTEMENT_INQUIETANT"] },
+          "incidentId": { "type": "string", "format": "uuid" },
+          "description": { "type": "string" },
+          "location": {
+            "type": "object",
+            "properties": {
+              "lat": { "type": "number" },
+              "lng": { "type": "number" },
+              "address": { "type": "string" },
+              "arrondissement": { "type": "string" },
+              "quartier": { "type": "string" }
+            },
+            "required": ["lat", "lng"]
+          },
+          "photos": { "type": "array", "items": { "type": "string" } },
+          "reportedBy": { "type": "string", "format": "uuid" },
+          "aiSimilarityScore": { "type": "number" },
+          "status": { "type": "string", "enum": ["NOUVEAU", "TRAITE", "REJETE", "PERTINENT"] },
+          "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "type", "description", "location", "reportedBy", "status", "createdAt"]
+      }
+    },
+    "timelineEvents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "incidentId": { "type": "string", "format": "uuid" },
+          "actionType": { "type": "string" },
+          "description": { "type": "string" },
+          "visibility": { "type": "string", "enum": ["PUBLIC", "INTERNAL"] },
+          "createdBy": { "type": "string", "format": "uuid" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "incidentId", "actionType", "description", "visibility", "createdAt"]
+      }
+    },
+    "watchers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "userId": { "type": "string", "format": "uuid" },
+          "arrondissements": { "type": "array", "items": { "type": "string" } },
+          "favoriteQuartiers": { "type": "array", "items": { "type": "string" } },
+          "active": { "type": "boolean" }
+        },
+        "required": ["userId", "arrondissements", "favoriteQuartiers", "active"]
+      }
+    },
+    "newsFeed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "type": { "type": "string", "enum": ["INFO", "ALERT", "SUCCESS"] },
+          "title": { "type": "string" },
+          "content": { "type": "string" },
+          "authorId": { "type": "string", "format": "uuid" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "type", "title", "content", "authorId", "createdAt"]
+      }
+    },
+    "rumors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "submittedBy": { "type": "string", "format": "uuid" },
+          "content": { "type": "string" },
+          "photo": { "type": "string" },
+          "status": { "type": "string", "enum": ["PENDING", "VERIFIED_TRUE", "VERIFIED_FALSE"] },
+          "officialResponse": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "submittedBy", "content", "status", "createdAt"]
+      }
+    },
+    "sosAlerts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "userId": { "type": "string", "format": "uuid" },
+          "location": {
+            "type": "object",
+            "properties": {
+              "lat": { "type": "number" },
+              "lng": { "type": "number" },
+              "address": { "type": "string" },
+              "arrondissement": { "type": "string" },
+              "quartier": { "type": "string" }
+            },
+            "required": ["lat", "lng"]
+          },
+          "status": { "type": "string", "enum": ["ACTIVE", "RESOLVED"] },
+          "resolvedAt": { "type": "string", "format": "date-time" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "userId", "location", "status", "createdAt"]
+      }
+    }
+  }
+}

@@ -47,6 +47,7 @@ import { AdminMapPage } from '../pages/admin/MapPage';
 import { AdminReportsPage } from '../pages/admin/ReportsPage';
 import { AdminAuditPage } from '../pages/admin/AuditPage';
 import { AdminConfigurationPage } from '../pages/admin/ConfigurationPage';
+import { SOSPage } from '../pages/superviseur/SOSPage';
 
 function RootRedirect() {
   const { isAuthenticated, user } = useAuthStore();
@@ -113,6 +114,7 @@ export const router = createBrowserRouter([
     element: <ProtectedRoute><SupervisorLayout /></ProtectedRoute>,
     children: [
       { path: 'dashboard', element: <SupervisorDashboard /> },
+      { path: 'sos', element: <SOSPage /> },
       { path: 'validation', element: <SupervisorValidationPage /> },
       { path: 'incidents', element: <SupervisorIncidentsPage /> },
       { path: 'map', element: <SupervisorMapPage /> },
@@ -128,6 +130,7 @@ export const router = createBrowserRouter([
     element: <ProtectedRoute><AdminLayout /></ProtectedRoute>,
     children: [
       { path: 'dashboard', element: <AdminDashboard /> },
+      { path: 'sos', element: <SOSPage /> },
       { path: 'utilisateurs', element: <AdminUsersPage /> },
       { path: 'incidents', element: <AdminIncidentsPage /> },
       { path: 'map', element: <AdminMapPage /> },

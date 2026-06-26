@@ -86,42 +86,33 @@ export const CitizenDashboard = () => {
       </div>
 
       {/* Quick Action Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-3">
         <button 
           onClick={() => navigate('/citoyen/observation/nouvelle')}
-          className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-start gap-3 active:scale-95 transition-transform text-left"
+          className="bg-white dark:bg-slate-900 rounded-2xl p-3 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center justify-center gap-2 active:scale-95 transition-transform text-center"
         >
-          <div className="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center shrink-0">
             <Eye className="w-5 h-5 text-orange-600 dark:text-orange-400" />
           </div>
-          <div>
-            <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-0.5">J'ai vu une personne</h3>
-            <p className="text-[10px] text-slate-500 font-medium">Signaler une observation spontanée</p>
-          </div>
+          <h3 className="font-bold text-slate-900 dark:text-white text-[11px] leading-tight">Observation</h3>
         </button>
         <button 
           onClick={() => navigate('/citoyen/actualite')}
-          className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-start gap-3 active:scale-95 transition-transform text-left"
+          className="bg-white dark:bg-slate-900 rounded-2xl p-3 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center justify-center gap-2 active:scale-95 transition-transform text-center"
         >
-          <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-500/20 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-500/20 flex items-center justify-center shrink-0">
             <Newspaper className="w-5 h-5 text-purple-600 dark:text-purple-400" />
           </div>
-          <div>
-            <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-0.5">Actualités</h3>
-            <p className="text-[10px] text-slate-500 font-medium">Infos, alertes & vérification de rumeurs</p>
-          </div>
+          <h3 className="font-bold text-slate-900 dark:text-white text-[11px] leading-tight">Actualités</h3>
         </button>
         <button 
           onClick={() => navigate('/citoyen/veilleur')}
-          className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-start gap-3 active:scale-95 transition-transform text-left"
+          className="bg-white dark:bg-slate-900 rounded-2xl p-3 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center justify-center gap-2 active:scale-95 transition-transform text-center"
         >
-          <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center shrink-0">
             <ShieldCheck className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           </div>
-          <div>
-            <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-0.5">Citoyen Veilleur</h3>
-            <p className="text-[10px] text-slate-500 font-medium">Paramétrer vos alertes ciblées</p>
-          </div>
+          <h3 className="font-bold text-slate-900 dark:text-white text-[11px] leading-tight">Veilleur</h3>
         </button>
       </div>
 

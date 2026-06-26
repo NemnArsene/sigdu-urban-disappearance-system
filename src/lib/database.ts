@@ -17,7 +17,7 @@ export class SigduDatabase extends Dexie {
   constructor() {
     super('SigduDatabase');
     // Declare tables, primary keys and indexes
-    this.version(3).stores({
+    this.version(4).stores({
       users: 'id, email, role, organizationId, serviceId',
       incidents: 'id, type, status, reportedBy, assignedServiceId, assignedTo, createdAt',
       alerts: 'id, level, createdAt',
@@ -28,7 +28,7 @@ export class SigduDatabase extends Dexie {
       watchers: 'userId, active',
       newsFeed: 'id, type, createdAt',
       rumors: 'id, submittedBy, status, createdAt',
-      sosAlerts: 'id, userId, status, createdAt'
+      sosAlerts: 'id, userId, status, assignedServiceId, createdAt'
     });
   }
 }

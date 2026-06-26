@@ -11,14 +11,11 @@ import type { Incident, TimelineEvent } from '../../types';
 const STATUS_TABS = ['Tous', 'En cours', 'Résolus', 'Rejetés'];
 
 const INCIDENT_TYPE_LABELS: Record<string, { label: string, icon: any, color: string }> = {
-  ENFANT_MINEUR: { label: 'Enfant mineur', icon: Baby, color: 'text-red-500 bg-red-500/10' },
-  ADULTE: { label: 'Adulte', icon: User, color: 'text-blue-500 bg-blue-500/10' },
-  PERSONNE_AGEE: { label: 'Personne âgée', icon: UserCheck, color: 'text-indigo-500 bg-indigo-500/10' },
   FUGUE: { label: 'Fugue', icon: Footprints, color: 'text-amber-500 bg-amber-500/10' },
+  DISPARITION: { label: 'Disparition', icon: HelpCircle, color: 'text-blue-500 bg-blue-500/10' },
   ENLEVEMENT: { label: 'Enlèvement', icon: AlertTriangle, color: 'text-rose-600 bg-rose-500/10' },
   TROUBLE_COGNITIF: { label: 'Trouble cognitif', icon: Brain, color: 'text-purple-500 bg-purple-500/10' },
   ACCIDENT_SUSPECT: { label: 'Accident suspect', icon: Car, color: 'text-orange-500 bg-orange-500/10' },
-  RETROUVE: { label: 'Personne retrouvée', icon: CheckCircle2, color: 'text-emerald-500 bg-emerald-500/10' },
   AUTRE: { label: 'Autre', icon: HelpCircle, color: 'text-gray-500 bg-gray-500/10' },
 };
 
@@ -152,9 +149,14 @@ export const CitizenMesSignalementsPage = () => {
                       </div>
                     </div>
 
-                    <div className="mt-3 flex items-center gap-4 text-xs text-gray-500">
-                      <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" />{report.location.arrondissement || 'Douala'}</span>
+                    <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-gray-500">
+                      <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" />{report.location.arrondissement || 'Douala'}{report.location.quartier ? ` - ${report.location.quartier}` : ''}</span>
                       <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" />{format(new Date(report.createdAt), 'dd MMM yyyy', { locale: fr })}</span>
+                      {report.personAge && (
+                         <span className="flex items-center gap-1.5 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-md font-medium text-gray-600 dark:text-gray-300">
+                           {report.personAge === 'ENFANT_MINEUR' ? 'Enfant mineur' : report.personAge === 'PERSONNE_AGEE' ? 'Personne âgée' : 'Adulte'}
+                         </span>
+                      )}
                     </div>
 
                     {/* Progress bar */}
@@ -209,12 +211,18 @@ export const CitizenMesSignalementsPage = () => {
                 <div className="flex flex-wrap gap-2">
                   <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 rounded-lg">
                     <MapPin className="w-3.5 h-3.5" />
-                    {selectedIncident.location.arrondissement || 'Lieu inconnu'}
+                    {selectedIncident.location.arrondissement || 'Lieu inconnu'}{selectedIncident.location.quartier ? ` - ${selectedIncident.location.quartier}` : ''}
                   </span>
                   <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 rounded-lg">
                     <Calendar className="w-3.5 h-3.5" />
                     {format(new Date(selectedIncident.createdAt), 'dd MMM yyyy à HH:mm', { locale: fr })}
                   </span>
+                  {selectedIncident.personAge && (
+                     <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 rounded-lg">
+                       <User className="w-3.5 h-3.5" />
+                       {selectedIncident.personAge === 'ENFANT_MINEUR' ? 'Enfant mineur' : selectedIncident.personAge === 'PERSONNE_AGEE' ? 'Personne âgée' : 'Adulte'}
+                     </span>
+                  )}
                 </div>
               </div>
 

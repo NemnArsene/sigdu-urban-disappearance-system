@@ -97,7 +97,7 @@ export const LoginPage = () => {
   return (
     <div className="min-h-screen flex font-sans bg-slate-50 overflow-hidden">
       {/* Left side: Dark Context (50%) - Hidden on mobile, flex on desktop */}
-      <div className="hidden lg:flex flex-col w-1/2 bg-[#0A0F1C] text-white relative h-screen">
+      <div className="hidden lg:flex flex-col w-1/2 bg-[#0A0F1C] text-white relative h-screen" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.06) 1.5px, transparent 1.5px)', backgroundSize: '24px 24px' }}>
         {/* Subtle animated glowing orbs */}
         <motion.div 
           animate={{ scale: [1, 1.1, 1], opacity: [0.1, 0.15, 0.1] }}
@@ -176,7 +176,7 @@ export const LoginPage = () => {
       </div>
 
       {/* Right side: Form (50% on desktop, 100% on mobile, Off-white bg) */}
-      <div className="w-full lg:w-1/2 flex flex-col h-screen overflow-y-auto relative" style={{ backgroundColor: '#F1F5F9', backgroundImage: 'radial-gradient(circle, #ffffff 2px, transparent 2px)', backgroundSize: '24px 24px' }}>
+      <div className="w-full lg:w-1/2 flex flex-col h-screen overflow-y-auto relative" style={{ backgroundColor: '#F1F5F9' }}>
 
         {/* Mobile Header (Only visible on small screens) */}
         <motion.div 

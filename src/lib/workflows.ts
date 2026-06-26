@@ -119,15 +119,11 @@ const ACCIDENT_WORKFLOW: WorkflowTransitions = {
 // ─── Mapping incident type → workflow ────────────────────────────────
 
 const WORKFLOWS: Record<IncidentType, WorkflowTransitions> = {
-  ENFANT_MINEUR: DEFAULT_WORKFLOW,
-  ADULTE: DEFAULT_WORKFLOW,
-  PERSONNE_AGEE: DEFAULT_WORKFLOW,
   DISPARITION: DEFAULT_WORKFLOW,
   TROUBLE_COGNITIF: DEFAULT_WORKFLOW,
   AUTRE: DEFAULT_WORKFLOW,
   ENLEVEMENT: ENLEVEMENT_WORKFLOW,
   FUGUE: FUGUE_WORKFLOW,
-  RETROUVE: RETROUVE_WORKFLOW,
   ACCIDENT_SUSPECT: ACCIDENT_WORKFLOW,
 };
 
@@ -186,14 +182,10 @@ export const STATUS_DISPLAY: Record<IncidentStatus, { label: string; emoji: stri
  * Get a human-readable label for an incident type.
  */
 export const TYPE_DISPLAY: Record<IncidentType, { label: string; emoji: string }> = {
-  ENFANT_MINEUR: { label: 'Enfant mineur', emoji: '👶' },
-  ADULTE: { label: 'Adulte', emoji: '👤' },
-  PERSONNE_AGEE: { label: 'Personne âgée', emoji: '👴' },
   FUGUE: { label: 'Fugue', emoji: '🏃' },
   DISPARITION: { label: 'Disparition', emoji: '⚠️' },
   ENLEVEMENT: { label: 'Enlèvement', emoji: '🚨' },
   TROUBLE_COGNITIF: { label: 'Trouble cognitif', emoji: '🧠' },
   ACCIDENT_SUSPECT: { label: 'Accident suspect', emoji: '🚑' },
-  RETROUVE: { label: 'Personne retrouvée', emoji: '✅' },
   AUTRE: { label: 'Autre', emoji: '❓' },
 };

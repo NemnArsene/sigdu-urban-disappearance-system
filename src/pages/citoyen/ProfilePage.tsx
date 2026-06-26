@@ -11,88 +11,7 @@ import {
 import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
 
-const EMERGENCY_NUMBERS = [
-  { name: 'Police Nationale', number: '117', icon: '🚔', description: 'Urgences policières' },
-  { name: 'Gendarmerie Nationale', number: '118', icon: '💂', description: 'Gendarmerie mobile' },
-  { name: 'SAMU (Ambulance)', number: '119', icon: '🚑', description: 'Urgences médicales' },
-  { name: 'Sapeurs-Pompiers', number: '118', icon: '🚒', description: 'Incendies et sauvetage' },
-  { name: 'Protection Civile', number: '116', icon: '🆘', description: 'Catastrophes naturelles' },
-  { name: 'Numéro Unifié', number: '112', icon: '📞', description: "Numéro d'urgence européen" },
-];
 
-const FAQ_ITEMS = [
-  {
-    q: 'Comment signaler une disparition ?',
-    a: 'Appuyez sur le bouton "Signaler" (le bouton rouge +), choisissez le type de signalement (Disparition, Enlèvement ou Retrouvé), puis suivez les étapes : photo, localisation GPS, détails. Votre signalement sera transmis aux forces de l\'ordre.'
-  },
-  {
-    q: 'Mon signalement est-il anonyme ?',
-    a: 'Non, votre identité est connue des services de sécurité pour pouvoir vous recontacter. Cependant, vos informations personnelles ne sont jamais rendues publiques.'
-  },
-  {
-    q: 'Combien de temps prend une enquête ?',
-    a: 'Le délai varie selon la complexité de l\'enquête. En général, les premières 48h sont cruciales. Vous pouvez suivre l\'avancement dans "Mes Signalements".'
-  },
-  {
-    q: 'Comment modifier mes informations personnelles ?',
-    a: 'Rendez-vous dans "Mon Profil" (section ci-dessous) pour mettre à jour votre nom, email ou numéro de téléphone.'
-  },
-  {
-    q: 'Puis-je signaler plusieurs personnes ?',
-    a: 'Oui, vous pouvez effectuer autant de signalements que nécessaire. Chaque signalement est traité individuellement.'
-  },
-];
-
-const PREVENTION_GUIDES = [
-  {
-    title: 'Que faire en cas de disparition ?',
-    icon: '🔍',
-    color: 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800',
-    steps: [
-      'Restez calme et rassemblez les informations (dernière tenue, heure, lieu)',
-      'Signalez immédiatement via SIGDU ou le 117',
-      'Préparez une photo récente de la personne',
-      'Interrogez l\'entourage et les voisins',
-      'Ne quittez pas votre domicile — laissez les forces de l\'ordre agir'
-    ]
-  },
-  {
-    title: 'Prévenir les enlèvements',
-    icon: '🛡️',
-    color: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800',
-    steps: [
-      'Évitez de marcher seul(e) la nuit, surtout dans les zones mal éclairées',
-      'Partagez toujours votre position avec un proche',
-      'Méfiez-vous des personnes inconnues qui proposent des trajets',
-      'Enseignez les bons réflexes aux enfants',
-      'En cas de menace, appelez le 117 immédiatement'
-    ]
-  },
-  {
-    title: 'Sécurité des enfants',
-    icon: '👶',
-    color: 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800',
-    steps: [
-      'Apprenez-leur leur nom complet et votre numéro de téléphone',
-      'Ne les laissez jamais partir seul(e) dans un lieu public',
-      'Identifiez-les avec un bracelet ou un papier dans leur poche',
-      'Expliquez-leur de ne jamais suivre un inconnu',
-      'Enseignez-leur à crier et fuir en cas de danger'
-    ]
-  },
-  {
-    title: 'Bons réflexes au quotidien',
-    icon: '✅',
-    color: 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800',
-    steps: [
-      'Inscrivez vos proches vulnérables sur SIGDU par précaution',
-      'Gardez des photos récentes de tous les membres de la famille',
-      'Notez les plaques d\'immatriculation des véhicules suspects',
-      'Rejoignez les groupes de vigilance de votre quartier',
-      'Signalez toute activité suspecte aux autorités'
-    ]
-  },
-];
 
 export const CitizenProfilePage = () => {
   const { user, updateUser, logout } = useAuthStore();
@@ -100,8 +19,6 @@ export const CitizenProfilePage = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [editing, setEditing] = useState(false);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [openGuide, setOpenGuide] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     name: user?.name || '',
@@ -408,92 +325,7 @@ export const CitizenProfilePage = () => {
         </div>
       </div>
 
-      {/* Emergency Numbers */}
-      <div>
-        <h3 className="font-bold text-sm text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-          <PhoneCall className="w-4 h-4 text-red-500" />
-          Numéros d'Urgence — Cameroun
-        </h3>
-        <div className="grid grid-cols-2 gap-3">
-          {EMERGENCY_NUMBERS.map((em) => (
-            <a
-              key={em.name}
-              href={`tel:${em.number}`}
-              className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 flex flex-col items-center gap-2 hover:shadow-md transition-all active:scale-95"
-            >
-              <span className="text-2xl">{em.icon}</span>
-              <div className="text-center">
-                <p className="font-bold text-sm text-slate-900 dark:text-white">{em.number}</p>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">{em.name}</p>
-                <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-0.5">{em.description}</p>
-              </div>
-            </a>
-          ))}
-        </div>
-      </div>
 
-      {/* Prevention Guides */}
-      <div>
-        <h3 className="font-bold text-sm text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-          <BookOpen className="w-4 h-4 text-red-500" />
-          Prévention & Guides
-        </h3>
-        <div className="space-y-3">
-          {PREVENTION_GUIDES.map((guide, i) => (
-            <div key={i} className={cn("rounded-2xl border overflow-hidden", guide.color)}>
-              <button
-                onClick={() => setOpenGuide(openGuide === i ? null : i)}
-                className="w-full flex items-center gap-3 px-4 py-3 text-left"
-              >
-                <span className="text-xl">{guide.icon}</span>
-                <span className="flex-1 font-bold text-sm text-slate-900 dark:text-white">{guide.title}</span>
-                {openGuide === i ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
-              </button>
-              {openGuide === i && (
-                <div className="px-4 pb-4">
-                  <ol className="space-y-2 ml-4">
-                    {guide.steps.map((step, j) => (
-                      <li key={j} className="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-300">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mt-0.5 shrink-0" />
-                        {step}
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* FAQ */}
-      <div>
-        <h3 className="font-bold text-sm text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-          <HelpCircle className="w-4 h-4 text-red-500" />
-          Questions Fréquentes (FAQ)
-        </h3>
-        <div className="space-y-2">
-          {FAQ_ITEMS.map((item, i) => (
-            <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-              <button
-                onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                className="w-full flex items-center gap-3 px-4 py-3 text-left"
-              >
-                <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center shrink-0">
-                  <HelpCircle className="w-4 h-4 text-red-500" />
-                </div>
-                <span className="flex-1 font-semibold text-sm text-slate-900 dark:text-white">{item.q}</span>
-                {openFaq === i ? <ChevronUp className="w-4 h-4 text-slate-500 shrink-0" /> : <ChevronDown className="w-4 h-4 text-slate-500 shrink-0" />}
-              </button>
-              {openFaq === i && (
-                <div className="px-4 pb-4 text-xs text-slate-600 dark:text-slate-400 leading-relaxed ml-11">
-                  {item.a}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* Settings Quick Access */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 space-y-3">

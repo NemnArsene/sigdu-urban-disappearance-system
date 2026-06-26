@@ -1,0 +1,250 @@
+# Architecture Globale et Modélisation : SIGDU
+
+Ce document compile les cas d'utilisation détaillés de la plateforme ainsi que le modèle de données complet (Diagramme de Classes). Le schéma JSON de la base de données est disponible dans le fichier séparé `database_schema.json`.
+
+---
+
+## 1. Fonctionnalités et Flux d'Acteurs (Cas d'Utilisation)
+
+Le diagramme suivant illustre l'ensemble des fonctionnalités du système réparties par acteur.
+
+```mermaid
+usecaseDiagram
+    actor "Citoyen" as C
+    actor "Citoyen Veilleur" as CV
+    actor "Agent Terrain" as A
+    actor "Superviseur" as S
+    actor "Administrateur" as Admin
+
+    %% Héritage d'acteurs
+    CV --|> C
+    S --|> A
+    Admin --|> S
+
+    %% Fonctionnalités Citoyen
+    package "Espace Citoyen" {
+        usecase "Signaler une disparition/fugue" as UC_Signalement
+        usecase "Soumettre une Observation" as UC_Obs
+        usecase "Vérifier/Soumettre une rumeur" as UC_Rumeur
+    }
+
+    C --> UC_Signalement
+    C --> UC_Obs
+    C --> UC_Rumeur
+
+    %% Fonctionnalités Citoyen Veilleur
+    package "Réseau de Veille" {
+        usecase "Gérer ses zones d'alerte" as UC_ZoneVeille
+        usecase "Recevoir Alertes Push" as UC_Alertes
+    }
+    
+    CV --> UC_ZoneVeille
+    CV --> UC_Alertes
+
+    %% Fonctionnalités Agent Terrain
+    package "Opérations Terrain" {
+        usecase "Gérer ses affectations" as UC_Affectations
+        usecase "Mettre à jour l'enquête" as UC_UpdateEnquete
+    }
+
+    A --> UC_Affectations
+    A --> UC_UpdateEnquete
+
+    %% Fonctionnalités Superviseur
+    package "Backoffice - Supervision" {
+        usecase "Valider les signalements" as UC_ValiderSig
+        usecase "Valider les observations" as UC_TraiterObs
+        usecase "Affecter un Agent" as UC_Dispatch
+        usecase "Gérer les rumeurs" as UC_TraiterRumeur
+    }
+
+    S --> UC_ValiderSig
+    S --> UC_TraiterObs
+    S --> UC_Dispatch
+    S --> UC_TraiterRumeur
+
+    %% Fonctionnalités Administrateur
+    package "Administration Système" {
+        usecase "Gérer les utilisateurs" as UC_Users
+        usecase "Configurer l'application" as UC_Config
+    }
+
+    Admin --> UC_Users
+    Admin --> UC_Config
+```
+
+### Détail des Flux (Début et Fin)
+
+#### A. Signaler une disparition/fugue
+* **Acteur initial** : Citoyen
+* **Début** : Le citoyen remplit le formulaire de signalement (photo, détails, position).
+* **Déroulement** : Le signalement est enregistré avec le statut `NOUVEAU`.
+* **Fin** : Le Superviseur reçoit le dossier, le valide (`DISPARITION_CONFIRMEE`), et le citoyen est notifié de la prise en charge.
+
+#### B. Soumettre et Traiter une Observation
+* **Acteur initial** : Citoyen ou Citoyen Veilleur
+* **Début** : Le citoyen prend une photo d'une personne isolée ou d'un événement suspect. L'IA propose potentiellement un matching.
+* **Déroulement** : L'observation est envoyée au backoffice (`NOUVEAU`). Le Superviseur l'analyse via son tableau de bord.
+* **Fin** : Le Superviseur valide l'observation (`PERTINENT`) et la lie au dossier concerné. L'Agent sur le terrain est informé pour se rendre au point GPS.
+
+#### C. Réseau de Veille (Citoyen Veilleur)
+* **Acteur initial** : Superviseur (Déclencheur) / Citoyen Veilleur (Récepteur)
+* **Début** : Le Superviseur qualifie un cas critique (ex: Enlèvement) et déclenche une "Alerte Géolocalisée".
+* **Déroulement** : Le système filtre les Citoyens Veilleurs ayant paramétré ce quartier spécifique.
+* **Fin** : Le Citoyen Veilleur reçoit une notification Push/SMS d'urgence avec la photo de la victime.
+
+#### D. Affectation et Enquête Terrain
+* **Acteur initial** : Superviseur
+* **Début** : Le Superviseur affecte un dossier validé à un Commissariat, puis à un Agent Terrain spécifique.
+* **Déroulement** : L'Agent reçoit l'affectation sur son mobile/tablette. Il se rend sur les lieux et ajoute des notes/photos dans la Timeline de l'incident (`ENQUETE_EN_COURS`).
+* **Fin** : La personne est retrouvée. L'Agent clôture l'incident sur le terrain (`RETROUVE`), ce qui informe instantanément le Citoyen déclarant et le Superviseur.
+
+#### E. Soumission et Démantèlement de Rumeur
+* **Acteur initial** : Citoyen
+* **Début** : Le citoyen voit une information virale sur les réseaux sociaux et la soumet sur SIGDU pour vérification (`PENDING`).
+* **Déroulement** : Le Superviseur ou l'Admin analyse la rumeur et rédige une réponse officielle.
+* **Fin** : Le statut passe à `VERIFIED_TRUE` ou `VERIFIED_FALSE` et le citoyen reçoit la notification avec la réponse des autorités pour stopper la désinformation.
+
+---
+
+## 2. Diagramme de Classes (Modèle de Données Complet)
+
+Ce diagramme représente la totalité des collections Dexie/IndexedDB, basées sur les types de `types.ts`.
+
+```mermaid
+classDiagram
+    class User {
+        +String id
+        +String email
+        +String name
+        +String firstName
+        +String phone
+        +String nationality
+        +Integer age
+        +String photo
+        +Role role
+        +String organizationId
+        +String serviceId
+        +Date createdAt
+    }
+
+    class Organization {
+        +String id
+        +String name
+        +String type
+        +Date createdAt
+    }
+
+    class Service {
+        +String id
+        +String organizationId
+        +String name
+        +String arrondissement
+        +Location location
+        +Date createdAt
+    }
+
+    class Incident {
+        +String id
+        +IncidentType type
+        +PersonAge personAge
+        +IncidentStatus status
+        +String title
+        +String description
+        +Location location
+        +List~String~ photos
+        +String reportedBy
+        +String assignedServiceId
+        +String assignedTo
+        +Date createdAt
+        +Date updatedAt
+    }
+
+    class Observation {
+        +String id
+        +String type
+        +String incidentId
+        +String description
+        +Location location
+        +List~String~ photos
+        +String reportedBy
+        +Float aiSimilarityScore
+        +String status
+        +Date createdAt
+    }
+
+    class TimelineEvent {
+        +String id
+        +String incidentId
+        +String actionType
+        +String description
+        +String visibility
+        +String createdBy
+        +Date createdAt
+    }
+
+    class Watcher {
+        +String userId
+        +List~String~ arrondissements
+        +List~String~ favoriteQuartiers
+        +Boolean active
+    }
+
+    class Alert {
+        +String id
+        +String title
+        +String message
+        +String level
+        +Date createdAt
+    }
+
+    class NewsPost {
+        +String id
+        +String type
+        +String title
+        +String content
+        +String authorId
+        +Date createdAt
+    }
+
+    class Rumor {
+        +String id
+        +String submittedBy
+        +String content
+        +String photo
+        +String status
+        +String officialResponse
+        +Date createdAt
+    }
+
+    class SOSAlert {
+        +String id
+        +String userId
+        +Location location
+        +String status
+        +Date resolvedAt
+        +Date createdAt
+    }
+
+    class Location {
+        +Float lat
+        +Float lng
+        +String address
+        +String arrondissement
+        +String quartier
+    }
+
+    %% Relations
+    User "1" -- "0..1" Watcher : peut être
+    User "1" -- "*" Incident : signale / enquête sur
+    User "1" -- "*" Observation : soumet
+    User "1" -- "*" Rumor : soumet
+    User "1" -- "*" SOSAlert : déclenche
+    
+    Organization "1" *-- "*" Service : possède
+    Service "1" o-- "*" User : emploie (Agents/Superviseurs)
+    Service "1" -- "*" Incident : gère
+    
+    Incident "1" *-- "*" TimelineEvent : contient
+    Incident "1" o-- "*" Observation : lie
+```

@@ -16,13 +16,14 @@ export const AdminLayout = () => {
       title: "Principal",
       items: [
         { to: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+        { to: '/admin/sos', icon: AlertTriangle, label: 'Urgences SOS' },
         { to: '/admin/map', icon: Map, label: 'Carte Interactive' },
       ]
     },
     {
       title: "Gestion des Cas",
       items: [
-        { to: '/admin/incidents', icon: AlertTriangle, label: 'Signalements' },
+        { to: '/admin/incidents', icon: List, label: 'Signalements' },
         { to: '/admin/validation', icon: CheckSquare, label: 'Validation' },
         { to: '/admin/observations', icon: Eye, label: 'Observations' },
         { to: '/admin/interventions', icon: List, label: 'Interventions' },

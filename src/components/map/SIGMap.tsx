@@ -115,25 +115,19 @@ export const SIGMap: React.FC<SIGMapProps> = ({
 
     incidents.forEach((inc) => {
       const MARKER_COLORS: Record<string, string> = {
-        ENFANT_MINEUR: '#ef4444',
-        ADULTE: '#3b82f6',
-        PERSONNE_AGEE: '#6366f1',
         FUGUE: '#f59e0b',
+        DISPARITION: '#3b82f6',
         ENLEVEMENT: '#e11d48',
         TROUBLE_COGNITIF: '#a855f7',
         ACCIDENT_SUSPECT: '#f97316',
-        RETROUVE: '#10b981',
         AUTRE: '#6b7280',
       };
       const TYPE_LABELS: Record<string, string> = {
-        ENFANT_MINEUR: 'Enfant mineur',
-        ADULTE: 'Adulte',
-        PERSONNE_AGEE: 'Personne âgée',
         FUGUE: 'Fugue',
+        DISPARITION: 'Disparition',
         ENLEVEMENT: 'Enlèvement',
         TROUBLE_COGNITIF: 'Trouble cognitif',
         ACCIDENT_SUSPECT: 'Accident suspect',
-        RETROUVE: 'Personne retrouvée',
         AUTRE: 'Autre',
       };
       const markerColor = MARKER_COLORS[inc.type] || '#6b7280';
@@ -169,7 +163,7 @@ export const SIGMap: React.FC<SIGMapProps> = ({
   }, [incidents, services]);
 
   return (
-    <div className="h-full w-full relative rounded-xl overflow-hidden">
+    <div className="h-full w-full relative rounded-xl overflow-hidden z-0">
       <div
         ref={containerRef}
         id={`sigdu-map-${uniqueId}`}

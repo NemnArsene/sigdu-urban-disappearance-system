@@ -1,0 +1,16 @@
+{
+  "name": "SIGDU – Signalement Urbain Douala",
+  "short_name": "SIGDU",
+  "description": "Système d'Information Géographique Participatif des Disparitions Urbaines",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#dc2626",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}

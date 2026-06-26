@@ -31,16 +31,14 @@ export interface User {
   createdAt: string;
 }
 
+export type PersonAge = 'ENFANT_MINEUR' | 'ADULTE' | 'PERSONNE_AGEE';
+
 export type IncidentType = 
-  | 'ENFANT_MINEUR' 
-  | 'ADULTE' 
-  | 'PERSONNE_AGEE' 
   | 'FUGUE' 
   | 'DISPARITION'
   | 'ENLEVEMENT' 
   | 'TROUBLE_COGNITIF' 
   | 'ACCIDENT_SUSPECT' 
-  | 'RETROUVE'
   | 'AUTRE';
 
 export type IncidentStatus = 
@@ -63,11 +61,13 @@ export interface Location {
   lng: number;
   address?: string;
   arrondissement?: string; // Douala I, Douala II, Douala III, Douala IV, Douala V
+  quartier?: string;
 }
 
 export interface Incident {
   id: string;
   type: IncidentType;
+  personAge?: PersonAge;
   status: IncidentStatus;
   title: string;
   description: string;
@@ -142,6 +142,7 @@ export interface SOSAlert {
   userId: string;
   location: Location;
   status: 'ACTIVE' | 'RESOLVED';
+  assignedServiceId?: string; // Commissariat assigné
   resolvedAt?: string;
   createdAt: string;
 }

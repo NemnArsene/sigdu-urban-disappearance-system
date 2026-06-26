@@ -5,22 +5,25 @@ import { db } from '../../lib/database';
 import { toast } from 'sonner';
 import { ChevronLeft, Camera, X, MapPin, Navigation, Send, AlertTriangle } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import { type IncidentType } from '../../types';
+import { type IncidentType, type PersonAge } from '../../types';
+import { ARRONDISSEMENTS, QUARTIERS_PAR_ARRONDISSEMENT } from '../../lib/constants';
 
 const STEPS = ['Photo', 'Localisation', 'Détails', 'Confirmation'];
 
-const INCIDENT_TYPES: { value: IncidentType; label: string; color: string }[] = [
+const PERSON_AGES: { value: PersonAge; label: string; color: string }[] = [
   { value: 'ENFANT_MINEUR', label: '👶 Enfant mineur', color: 'border-red-500 bg-red-50 text-red-700' },
   { value: 'ADULTE', label: '👤 Adulte', color: 'border-blue-500 bg-blue-50 text-blue-700' },
   { value: 'PERSONNE_AGEE', label: '👴 Personne âgée', color: 'border-indigo-500 bg-indigo-50 text-indigo-700' },
+];
+
+const INCIDENT_TYPES: { value: IncidentType; label: string; color: string }[] = [
   { value: 'FUGUE', label: '🏃 Fugue', color: 'border-amber-500 bg-amber-50 text-amber-700' },
+  { value: 'DISPARITION', label: '❓ Disparition', color: 'border-gray-500 bg-gray-50 text-gray-700' },
   { value: 'ENLEVEMENT', label: '⚠️ Enlèvement', color: 'border-rose-600 bg-rose-50 text-rose-800' },
   { value: 'TROUBLE_COGNITIF', label: '🧠 Trouble cognitif', color: 'border-purple-500 bg-purple-50 text-purple-700' },
   { value: 'ACCIDENT_SUSPECT', label: '🚨 Accident suspect', color: 'border-orange-500 bg-orange-50 text-orange-700' },
-  { value: 'AUTRE', label: '❓ Autre', color: 'border-gray-500 bg-gray-50 text-gray-700' },
+  { value: 'AUTRE', label: '➕ Autre', color: 'border-slate-500 bg-slate-50 text-slate-700' },
 ];
-
-const ARRONDISSEMENTS = ['Douala I', 'Douala II', 'Douala III', 'Douala IV', 'Douala V'];
 
 export const CitizenReportPage = () => {
   const navigate = useNavigate();
@@ -30,11 +33,13 @@ export const CitizenReportPage = () => {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
+    personAge: '' as PersonAge | '',
     type: '' as IncidentType | '',
     otherTypeDetail: '',
     title: '',
     description: '',
     arrondissement: '',
+    quartier: '',
     address: '',
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -73,6 +78,7 @@ export const CitizenReportPage = () => {
     await db.incidents.add({
       id: `inc_${Date.now()}`,
       type: form.type as any,
+      personAge: form.personAge as any,
       status: 'NOUVEAU',
       title: form.title,
       description: form.description,
@@ -81,6 +87,7 @@ export const CitizenReportPage = () => {
         lng: location.lng,
         address: form.address,
         arrondissement: form.arrondissement,
+        quartier: form.quartier,
       },
       photos,
       reportedBy: user.id,
@@ -96,7 +103,7 @@ export const CitizenReportPage = () => {
   const canProceed = () => {
     if (step === 0) return true; // Photos optionnelles
     if (step === 1) return location !== null;
-    if (step === 2) return form.title && form.type && form.description && form.arrondissement;
+    if (step === 2) return form.title && form.type && form.personAge && form.description && form.arrondissement && form.quartier;
     return true;
   };
 
@@ -225,54 +232,97 @@ export const CitizenReportPage = () => {
           <div className="space-y-4 pt-2">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                Type de signalement <span className="text-red-500">*</span>
+                Qui est concerné ? <span className="text-red-500">*</span>
               </label>
-              <div className="space-y-2">
+              <div className="grid grid-cols-3 gap-2">
+                {PERSON_AGES.map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setForm(f => ({ ...f, personAge: opt.value }))}
+                    className={cn(
+                      'p-2 rounded-xl border-2 text-center text-xs font-medium transition-all flex flex-col items-center gap-1',
+                      form.personAge === opt.value
+                        ? opt.color
+                        : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300'
+                    )}
+                  >
+                    <span className="text-xl">{opt.label.split(' ')[0]}</span>
+                    <span>{opt.label.split(' ').slice(1).join(' ')}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                Nature de l'incident <span className="text-red-500">*</span>
+              </label>
+              <div className="grid grid-cols-2 gap-2">
                 {INCIDENT_TYPES.map(opt => (
                   <button
                     key={opt.value}
                     type="button"
                     onClick={() => setForm(f => ({ ...f, type: opt.value }))}
                     className={cn(
-                      'w-full p-3 rounded-xl border-2 text-left text-sm font-medium transition-all',
+                      'p-2.5 rounded-xl border-2 text-left text-sm font-medium transition-all flex items-center gap-2',
                       form.type === opt.value
                         ? opt.color
                         : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300'
                     )}
                   >
-                    {opt.label}
+                    <span>{opt.label}</span>
                   </button>
                 ))}
               </div>
               {form.type === 'AUTRE' && (
                 <div className="mt-3 animate-in fade-in slide-in-from-top-2">
                   <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">
-                    Veuillez préciser le type de disparition <span className="text-red-500">*</span>
+                    Veuillez préciser la nature <span className="text-red-500">*</span>
                   </label>
                   <input
                     value={form.otherTypeDetail}
                     onChange={e => setForm(f => ({ ...f, otherTypeDetail: e.target.value }))}
-                    placeholder="Ex: Fugue avec violences..."
+                    placeholder="Ex: Disparition en mer..."
                     className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                   />
                 </div>
               )}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                Arrondissement <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={form.arrondissement}
-                onChange={e => setForm(f => ({ ...f, arrondissement: e.target.value }))}
-                className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-              >
-                <option value="">Sélectionner l'arrondissement</option>
-                {ARRONDISSEMENTS.map(a => (
-                  <option key={a} value={a}>{a}</option>
-                ))}
-              </select>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                  Arrondissement <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={form.arrondissement}
+                  onChange={e => setForm(f => ({ ...f, arrondissement: e.target.value, quartier: '' }))}
+                  className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                >
+                  <option value="">Sélectionner</option>
+                  {ARRONDISSEMENTS.map(a => (
+                    <option key={a} value={a}>{a}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                  Quartier <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={form.quartier}
+                  onChange={e => setForm(f => ({ ...f, quartier: e.target.value }))}
+                  disabled={!form.arrondissement}
+                  className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-50"
+                >
+                  <option value="">Sélectionner</option>
+                  {form.arrondissement && QUARTIERS_PAR_ARRONDISSEMENT[form.arrondissement]?.map(q => (
+                    <option key={q} value={q}>{q}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div>
@@ -322,14 +372,20 @@ export const CitizenReportPage = () => {
                 </div>
               )}
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Type</span>
+                <span className="text-gray-500">Personne</span>
                 <span className="font-medium text-gray-900 dark:text-white">
-                  {INCIDENT_TYPES.find(t => t.value === form.type)?.label.split(' — ')[0] || '—'}
+                  {PERSON_AGES.find(t => t.value === form.personAge)?.label.split(' ').slice(1).join(' ') || '—'}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Arrondissement</span>
-                <span className="font-medium text-gray-900 dark:text-white">{form.arrondissement || '—'}</span>
+                <span className="text-gray-500">Type</span>
+                <span className="font-medium text-gray-900 dark:text-white">
+                  {INCIDENT_TYPES.find(t => t.value === form.type)?.label.split(' ').slice(1).join(' ') || '—'}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Lieu</span>
+                <span className="font-medium text-gray-900 dark:text-white">{form.arrondissement || '—'}, {form.quartier || '—'}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Titre</span>
